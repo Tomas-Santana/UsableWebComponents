@@ -7,8 +7,8 @@ export default class BaseComponent extends HTMLElement {
         this.mutationObserver = new MutationObserver((mutationList, observer) => {
             for (let mutation in mutationList) {
             if (mutation in this.mutationListeners)
-                this.onMutate();
                 this.render();
+                this.onMutate();
             }
         })
 
@@ -136,7 +136,7 @@ export default class BaseComponent extends HTMLElement {
         document.body.appendChild(this)
     }
 
-    onAppend() {
-
+    onMutate() {
+        return
     }
 }

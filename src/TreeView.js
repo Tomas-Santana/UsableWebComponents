@@ -1,5 +1,5 @@
 import BaseComponent from "./BaseComponent.js";
-
+import TreeItem from './TreeItem.js'
 
 export default class TreeView extends BaseComponent {
 
@@ -21,7 +21,7 @@ export default class TreeView extends BaseComponent {
     styles() {
         return /*css*/`
             ul {
-                padding-left: 20px;
+                padding-left: 40px;
             }
             label {
                 font-weight: bold;
@@ -81,8 +81,6 @@ export default class TreeView extends BaseComponent {
 
     checkCheckbox() {
         console.log(`${this.description} checked`)
-        const slot = this.shadowRoot.querySelector("slot")
-        this.items = slot.assignedElements()
 
         const checkBox = this.shadowRoot.getElementById("selectAll")
         const checkedItems = this.items.filter(item => item.checkbox.checked)
@@ -105,6 +103,8 @@ export default class TreeView extends BaseComponent {
         }
     }
     changeAll() {
+        const slot = this.shadowRoot.querySelector("slot")
+        this.items = slot.assignedElements()
         this.items.forEach(item => {
             item.checkbox.checked = this.checkbox.checked
             if (item.checkbox.indeterminate) {
@@ -117,24 +117,40 @@ export default class TreeView extends BaseComponent {
     }
 
     onMutate() {
-        console.log("Mutated treeView");
-        const slot = this.shadowRoot.querySelector("slot")
-        this.items = slot.assignedElements()
+        this.items = this.shadowRoot.querySelector("slot").assignedElements()
+        this.items.forEach(item => {
+            console.log(item.description)
+        })
     }
 
-    static fromObject(obj) {
-        const rootNode = new TreeView();
-        const constructorTemplate = "";
-        for (let items in obj) {
-            
-        }
-        rootNode.innerHTML = constructorTemplate;
+    static fromObject(name, obj) {
+         const rootNode = new TreeView();
+         rootNode.setAttribute("description", "Root")
+         rootNode.setAttribute("checked", "")
+
+         for (let item in obj) {
+            let toAppend;
+            if (typeof obj[item] == "object")
+                toAppend = TreeView.fromObject(item, obj[item])
+            else {
+                toAppend = new TreeItem()
+                toAppend.setAttribute("description", item)
+                toAppend.setAttribute("checked", "")
+            }
+            rootNode.appendChild(toAppend);
+         }
+        
     }
 
     /*
     {
-        title: hola
-        1: 2
+        1: null,
+        2: {
+            3: null,
+            4: {
+                
+            }
+        }
     }
     */
 
