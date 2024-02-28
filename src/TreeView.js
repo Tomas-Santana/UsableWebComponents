@@ -5,43 +5,77 @@ export default class TreeView extends BaseComponent {
 
     template() {
         return /*html*/`
-            <button> <span class="selector">\></span> </button>
-            <input 
-                type="checkbox" 
-                id="selectAll" 
-                name="selectAll" 
-                ${this.checked ? "checked" : ""}
-            >
-            <label for="selectAll">${this.description}</label>
+        <button> 
+            <span class="selector">
+                &#171;
+
+            </span>
+        </button>
+        <input 
+        type="checkbox" 
+        id="selectAll" 
+        name="selectAll" 
+        ${this.checked ? "checked" : ""}
+        >
+        <label for="selectAll">${this.description}</label>
+        <div class="container">
             <ul>
                 <slot></slot>
             </ul>
+            <div class="line"></div>
+        </div>
         `
     }
     styles() {
         return /*css*/`
             ul {
                 padding-left: 40px;
+                margin: 0px;
+                animation: slideIn 200ms;
             }
             label {
                 font-weight: bold;
-                font-size: 1.2em;
+                margin: 5px 0px;
+            }
+            @keyframes slideaway {
+                from { display: block; }
+                to { transform: translateY(-40px); opacity: 0;}
+            }
+            @keyframes slideIn {
+                from { transform: translateY(-40px); opacity: 0;}
+                to { display: block; }
             }
             .collapsed {
+                animation: slideaway 200ms;
                 display: none;
             }
             button {
                 all: unset;
                 cursor: pointer;
                 font-size: 1.2em;
-                margin-right: 5px;
+                margin: 0px 5px;
                 transition: transform 0.1s;
+                transform: rotate(270deg);
             }
             .buttonCollapsed {
-                transform: rotate(90deg);
+                transform: rotate(180deg);
             }
             .selector {
                 user-select: none
+            }
+            .container {
+                position: relative;
+                margin: 10px 0px;
+            }
+            .line {
+                position: absolute;
+                top: 0px;
+                left: 10px;
+                width: 2px;
+                height: 100%;
+                background-color: #aaa;
+
+                animation: slideIn 200ms;
             }
         `
     }
@@ -71,16 +105,20 @@ export default class TreeView extends BaseComponent {
         button.addEventListener("click", () => {
             const ul = this.shadowRoot.querySelector("ul")
             const button = this.shadowRoot.querySelector("button")
+            const line = this.shadowRoot.querySelector(".line")
             ul.classList.toggle("collapsed")
             button.classList.toggle("buttonCollapsed")
+            line.classList.toggle("collapsed")
         })
 
-        console.log("rendered", this.description)
+        // console.log("rendered", this.description)
 
     }
 
     checkCheckbox() {
-        console.log(`${this.description} checked`)
+        // console.log(`${this.description} checked`)
+        const slot = this.shadowRoot.querySelector("slot")
+        this.items = slot.assignedElements()
 
         const checkBox = this.shadowRoot.getElementById("selectAll")
         const checkedItems = this.items.filter(item => item.checkbox.checked)
@@ -118,27 +156,32 @@ export default class TreeView extends BaseComponent {
 
     onMutate() {
         this.items = this.shadowRoot.querySelector("slot").assignedElements()
-        this.items.forEach(item => {
-            console.log(item.description)
-        })
+        // this.items.forEach(item => {
+        //     console.log(item.description)
+        // })
+    }
+
+    addItem(name) {
+        const child = new TreeItem();
+        child.setAttribute("description", name)
+        child.setAttribute("checked", "")
+        
+        this.appendChild(child)
     }
 
     static fromObject(name, obj) {
          const rootNode = new TreeView();
-         rootNode.setAttribute("description", "Root")
+         rootNode.setAttribute("description", name)
          rootNode.setAttribute("checked", "")
 
          for (let item in obj) {
-            let toAppend;
-            if (typeof obj[item] == "object")
-                toAppend = TreeView.fromObject(item, obj[item])
-            else {
-                toAppend = new TreeItem()
-                toAppend.setAttribute("description", item)
-                toAppend.setAttribute("checked", "")
+            if (typeof obj[item] == "object" && obj[item]) {
+                rootNode.appendChild(TreeView.fromObject(item, obj[item]))
+                continue;
             }
-            rootNode.appendChild(toAppend);
-         }
+            rootNode.addItem(item)
+        }
+        return rootNode
         
     }
 

@@ -4,3 +4,22 @@ body, html {
     font-family: sans-serif;
     background-color: #f4f4f4;
 }
+
+.content {
+    display: flex;
+    height: 100vh;
+
+}
+
+.from-html, .from-js {
+    width: 50%;
+    padding: 20px;
+}
+
+.from-html {
+    background-color: #f9e4db;
+}
+
+.from-js {
+    background-color: #f2f6d8;
+}

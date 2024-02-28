@@ -2,6 +2,7 @@ export default class BaseComponent extends HTMLElement {
     constructor() {
         super()
         this.state = {}
+        this.attachShadow({mode: 'open'})
         this.onConstructed();
         this.mutationListeners = ["childList"]
         this.mutationObserver = new MutationObserver((mutationList, observer) => {
@@ -16,7 +17,6 @@ export default class BaseComponent extends HTMLElement {
     }
     
     connectedCallback() {
-        this.attachShadow({mode: 'open'})
         Object.keys(this.data()).forEach(key => {
             Object.defineProperty(this, key, {
                 get() {

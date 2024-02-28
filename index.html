@@ -9,32 +9,49 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <tree-view description="Grandad" checked="">
-        <tree-item description="Hello" checked=""></tree-item>
-        <tree-item description="Hello" checked=""></tree-item>
-        <tree-view description="child">
-            <tree-item description="Hello from child"></tree-item> 
-            <tree-item description="Hello from child"></tree-item>
-            <tree-view description="child">
-                <tree-item description="Hello from child"></tree-item> 
-                <tree-item description="Hello from child"></tree-item>
+
+    <div class="content">
+        <div class="from-html">
+            <h2>Tree View en HTML</h2>
+            <tree-view description="Grandad" checked="">
+                <tree-item description="Hello" checked=""></tree-item>
+                <tree-item description="Hello" checked=""></tree-item>
+                <tree-view description="Dad">
+                    <tree-item description="Hello from child"></tree-item> 
+                    <tree-item description="Hello from child"></tree-item>
+                    <tree-view description="Child">
+                        <tree-item description="Hello from child"></tree-item> 
+                        <tree-item description="Hello from child"></tree-item>
+                    </tree-view>
+                    
+                </tree-view>
             </tree-view>
-            
-        </tree-view>
-    </tree-view>
+        </div>
+        <div class="from-js">
+            <h2>Tree View en JS</h2>
+        </div>
+    </div>
+    
 
     <script type="module">
-        import TreeItem from './src/TreeItem.js'
-        setTimeout(() => {
-            const treeView = document.querySelector("tree-view");
-            console.log(treeView, [...treeView.children]);
-            const item = new TreeItem();
-            item.setAttribute("description", "Hello from new Child")
-            item.setAttribute("checked", "")
-            treeView.appendChild(item);
-            console.log(treeView, [...treeView.children]);
 
-        }, 1000);
+    import TreeItem from './src/TreeItem.js'
+    import TreeView from './src/TreeView.js'
+
+    const treeView = TreeView.fromObject("Grandad", {
+        "1": null,
+        "2": null,
+        "Dad": {
+            "3": null,
+            "4": null,
+            "Child": {
+                "5": null,
+                "6": null
+            }
+        }
+    })
+    const fromJs = document.querySelector('.from-js')
+    fromJs.appendChild(treeView)
 
     </script>
     
