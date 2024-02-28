@@ -2,7 +2,7 @@ import BaseComponent from "./BaseComponent.js";
 
 export default class TreeItem extends BaseComponent {
     template() {
-        return `
+        return /*html*/`
             <li>
                 <input 
                     type="checkbox" 
@@ -25,7 +25,7 @@ export default class TreeItem extends BaseComponent {
         }
     }
     styles() {
-        return `
+        return /*css*/`
             li {
                 list-style-type: none;
             }

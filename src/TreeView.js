@@ -37,6 +37,9 @@ export default class TreeView extends BaseComponent {
                 font-weight: bold;
                 margin: 5px 0px;
             }
+            label:hover {
+                color: #333;
+            }
             @keyframes slideaway {
                 from { display: block; }
                 to { transform: translateY(-40px); opacity: 0;}
