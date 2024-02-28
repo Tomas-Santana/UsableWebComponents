@@ -159,9 +159,6 @@ export default class TreeView extends BaseComponent {
 
     onMutate() {
         this.items = this.shadowRoot.querySelector("slot").assignedElements()
-        // this.items.forEach(item => {
-        //     console.log(item.description)
-        // })
     }
 
     addItem(name) {
@@ -187,23 +184,5 @@ export default class TreeView extends BaseComponent {
         return rootNode
         
     }
-
-    /*
-    {
-        1: null,
-        2: {
-            3: null,
-            4: {
-                
-            }
-        }
-    }
-    */
-
-    /*
-        <tree-view>
-            <tree-item></tree-item>
-        </tree-view>
-    */
 }
 customElements.define("tree-view", TreeView)
