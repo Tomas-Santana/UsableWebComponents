@@ -5,7 +5,9 @@ export default class TreeView extends BaseComponent {
 
     template() {
         return /*html*/`
-        <button> 
+        <button
+            class="${this.collapsed ? "buttonCollapsed" : ""}"
+        > 
             <span class="selector">
                 &#171;
 
@@ -19,10 +21,13 @@ export default class TreeView extends BaseComponent {
         >
         <label for="selectAll">${this.description}</label>
         <div class="container">
-            <ul>
+            <ul class="${this.collapsed ? "collapsed" : ""}" >
                 <slot></slot>
             </ul>
-            <div class="line"></div>
+            <div 
+                class="line ${this.collapsed ? "collapsed" : ""}"
+            >
+            </div>
         </div>
         `
     }
@@ -40,16 +45,7 @@ export default class TreeView extends BaseComponent {
             label:hover {
                 color: #333;
             }
-            @keyframes slideaway {
-                from { display: block; }
-                to { transform: translateY(-40px); opacity: 0;}
-            }
-            @keyframes slideIn {
-                from { transform: translateY(-40px); opacity: 0;}
-                to { display: block; }
-            }
             .collapsed {
-                animation: slideaway 200ms;
                 display: none;
             }
             button {
@@ -78,65 +74,71 @@ export default class TreeView extends BaseComponent {
                 height: 100%;
                 background-color: #aaa;
 
-                animation: slideIn 200ms;
             }
         `
     }
     properties() {
         return {
-            description: "Tree View",
+            description: {
+                reactive: true
+            },
             checked: {},
         }
     }
     data() {
         return {
-            collapsed: false
+            collapsed: false,
+            checkboxState: "false", 
         }
     }
     onRender() {
-
         this.checkbox = this.shadowRoot.getElementById("selectAll")
 
+        this.items = this.shadowRoot.querySelector("slot").assignedElements()
+        
         this.checkbox.addEventListener("change", () => {
-            this.checked = this.checkbox.checked ? "true" : ""
-            if (this.parentNode.checkCheckbox) 
+                this.checked = this.checkbox.checked ? "true" : ""
+                if (this.parentNode.checkCheckbox) 
                 this.parentNode.checkCheckbox()
             this.changeAll()
         })
 
         const button = this.shadowRoot.querySelector("button")
         button.addEventListener("click", () => {
-            const ul = this.shadowRoot.querySelector("ul")
-            const button = this.shadowRoot.querySelector("button")
-            const line = this.shadowRoot.querySelector(".line")
-            ul.classList.toggle("collapsed")
-            button.classList.toggle("buttonCollapsed")
-            line.classList.toggle("collapsed")
+            this.collapsed = !this.collapsed
         })
 
-        // console.log("rendered", this.description)
+        if (this.checkboxState === "true") {
+            this.checkbox.checked = true
+            this.checkbox.indeterminate = false
+
+        }
+        else if (this.checkboxState === "indeterminate") {
+            this.checkbox.indeterminate = true
+            this.checkbox.checked = false
+        }
+        else {
+            this.checkbox.checked = false
+            this.checkbox.indeterminate = false
+        }
 
     }
 
     checkCheckbox() {
-        // console.log(`${this.description} checked`)
         const slot = this.shadowRoot.querySelector("slot")
         this.items = slot.assignedElements()
 
         const checkBox = this.shadowRoot.getElementById("selectAll")
-        const checkedItems = this.items.filter(item => item.checkbox.checked)
-        const indeterminateItems = this.items.filter(item => item.checkbox.indeterminate)
+        const checkedItems = this.items.filter(item => item.checkbox?.checked)
+        const indeterminateItems = this.items.filter(item => item.checkbox?.indeterminate)
 
 
         if (checkedItems.length === this.items.length) {
-            checkBox.checked = true
-            checkBox.indeterminate = false
+            this.checkboxState = "true"
         } else if (checkedItems.length > 0 || indeterminateItems.length > 0) {
-            checkBox.checked = false
-            checkBox.indeterminate = true
+            this.checkboxState = "indeterminate"
         } else {
-            checkBox.checked = false
-            checkBox.indeterminate = false
+            this.checkboxState = "false"
         }
 
         if (this.parentNode.checkCheckbox) {
@@ -159,9 +161,6 @@ export default class TreeView extends BaseComponent {
 
     onMutate() {
         this.items = this.shadowRoot.querySelector("slot").assignedElements()
-        // this.items.forEach(item => {
-        //     console.log(item.description)
-        // })
     }
 
     addItem(name) {
