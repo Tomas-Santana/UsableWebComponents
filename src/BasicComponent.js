@@ -1,6 +1,7 @@
 import BaseComponent from "./BaseComponent.js";
 
 export default class BasicComponent extends BaseComponent {
+
     template() {
         return `
             <h1>Count is ${this.count}</h1>

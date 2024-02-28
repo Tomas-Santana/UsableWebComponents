@@ -1,11 +1,22 @@
 export default class BaseComponent extends HTMLElement {
     constructor() {
         super()
-        this.attachShadow({mode: 'open'})
         this.state = {}
-    }
+        this.onConstructed();
+        this.mutationListeners = ["childList"]
+        this.mutationObserver = new MutationObserver((mutationList, observer) => {
+            for (let mutation in mutationList) {
+            if (mutation in this.mutationListeners)
+                this.onMutate();
+                this.render();
+            }
+        })
 
-    async connectedCallback() {
+        this.mutationObserver.observe(this, { childList:true })
+    }
+    
+    connectedCallback() {
+        this.attachShadow({mode: 'open'})
         Object.keys(this.data()).forEach(key => {
             Object.defineProperty(this, key, {
                 get() {
@@ -21,21 +32,25 @@ export default class BaseComponent extends HTMLElement {
         Object.keys(this.properties()).forEach(key => {
             Object.defineProperty(this, key, {
                 get() {
-                    return this.getAttribute(key)
+                    return this.getAttribute(key) 
                 },
                 set(value) {
                     this.setAttribute(key, value)
-                    this.setState({[key]: value})
+                    // set state only if the property is reactive
+                    if (this.properties()[key].reactive) {
+                        this.setState({[key]: value})
+                    }
+
                 }
+
             })
             const defaulValue = this.getAttribute(key) || this.properties()[key]
             this.setState({[key]: defaulValue}, false)
         })
 
-        this.render()
-        this.onFirstRender()
+        this.render(true)
     }
-    render() {
+    render(firstRender = false) {
         this.beforeRender()
         this.shadowRoot.innerHTML = `
             <style>
@@ -43,10 +58,13 @@ export default class BaseComponent extends HTMLElement {
             </style>
             ${this.template()}
         `
+        if (firstRender) {
+            this.onFirstRender()
+        }
         this.onRender()
     }
 
-    setState(newState, reRender = true) {
+    setState(newState, reRender=true) {
         this.state = {
             ...this.state,
             ...newState
@@ -58,14 +76,15 @@ export default class BaseComponent extends HTMLElement {
     }
 
     styles() {
-        return ""
+        return ``
     }
 
     /**
      * Properties of the custom component (custom attributes for the HTML tag)
      */
     properties() {
-        return {}
+        return {
+        }
     }
 
     /**
@@ -80,15 +99,16 @@ export default class BaseComponent extends HTMLElement {
      * Reactive properties of the custom component 
      */
     data() {
-        return {}
+        return {
+        }
     }
 
     // Lifecycle methods
     /**
-     * Called before the first render of the component
+     * Called after constructor
      */
-    beforeFirstRender() {
-
+    onConstructed() {
+        return
     }
 
     /**
@@ -110,5 +130,13 @@ export default class BaseComponent extends HTMLElement {
      */
     onRender() {
         return
+    }
+
+    addToBody() {
+        document.body.appendChild(this)
+    }
+
+    onAppend() {
+
     }
 }

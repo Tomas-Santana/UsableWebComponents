@@ -4,10 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script type="module" src="src/BasicComponent.js"></script>
+    <script type="module" src="src/TreeItem.js"></script>
+    <script type="module" src="src/TreeView.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <basic-component color="red"></basic-component>
+    <tree-view description="Grandad" checked="">
+        <tree-item description="Hello" checked=""></tree-item>
+        <tree-item description="Hello" checked=""></tree-item>
+        <tree-view description="child">
+            <tree-item description="Hello from child"></tree-item> 
+            <tree-item description="Hello from child"></tree-item>
+            <tree-view description="child">
+                <tree-item description="Hello from child"></tree-item> 
+                <tree-item description="Hello from child"></tree-item>
+            </tree-view>
+            
+        </tree-view>
+    </tree-view>
+
+    <script type="module">
+        import TreeItem from './src/TreeItem.js'
+        setTimeout(() => {
+            const treeView = document.querySelector("tree-view");
+            console.log(treeView, [...treeView.children]);
+            const item = new TreeItem();
+            item.setAttribute("description", "Hello from new Child")
+            item.setAttribute("checked", "")
+            treeView.appendChild(item);
+            console.log(treeView, [...treeView.children]);
+
+        }, 1000);
+
+    </script>
     
+
 </body>
 </html>
