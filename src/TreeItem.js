@@ -21,7 +21,8 @@ export default class TreeItem extends BaseComponent {
             },
             checked: {
                 reactive: false
-            }
+            },
+            id: {reactive: false}
         }
     }
     styles() {
@@ -34,6 +35,7 @@ export default class TreeItem extends BaseComponent {
     onFirstRender() {
         this.type = "tree-item"
     }
+
     onRender() {
         this.checkbox = this.shadowRoot.querySelector("input");
 
@@ -42,6 +44,8 @@ export default class TreeItem extends BaseComponent {
             this.parentNode.checkCheckbox()
         })
     }
+
+    
 }
 
 customElements.define("tree-item", TreeItem)

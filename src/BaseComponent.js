@@ -15,6 +15,10 @@ export default class BaseComponent extends HTMLElement {
 
         this.mutationObserver.observe(this, { childList:true })
     }
+
+    addTo(node) {
+        node.appendChild(this);
+    }
     
     connectedCallback() {
         Object.keys(this.data()).forEach(key => {

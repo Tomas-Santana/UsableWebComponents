@@ -86,6 +86,7 @@ export default class TreeView extends BaseComponent {
         return {
             description: "Tree View",
             checked: {},
+            id: {}
         }
     }
     data() {
@@ -117,16 +118,17 @@ export default class TreeView extends BaseComponent {
         // console.log("rendered", this.description)
 
     }
+    get items() {
+        const slot = this.shadowRoot.querySelector("slot")
+        return slot.assignedElements()
+    }
+
 
     checkCheckbox() {
-        // console.log(`${this.description} checked`)
-        const slot = this.shadowRoot.querySelector("slot")
-        this.items = slot.assignedElements()
 
         const checkBox = this.shadowRoot.getElementById("selectAll")
         const checkedItems = this.items.filter(item => item.checkbox.checked)
         const indeterminateItems = this.items.filter(item => item.checkbox.indeterminate)
-
 
         if (checkedItems.length === this.items.length) {
             checkBox.checked = true
@@ -143,9 +145,28 @@ export default class TreeView extends BaseComponent {
             this.parentNode.checkCheckbox()   
         }
     }
+
+    setCheckbox(id, state=true) {
+        const item = this.findItem(id)
+        console.log(item)
+
+        if (state) {
+            item.checkbox.checked = true
+            item.checkbox.indeterminate = false
+        } else {
+            item.checkbox.checked = false
+            item.checkbox.indeterminate = false
+        }
+
+        if (item.changeAll) {
+            item.changeAll()
+        }
+
+        this.checkCheckbox()
+    
+    }
+
     changeAll() {
-        const slot = this.shadowRoot.querySelector("slot")
-        this.items = slot.assignedElements()
         this.items.forEach(item => {
             item.checkbox.checked = this.checkbox.checked
             if (item.checkbox.indeterminate) {
@@ -158,31 +179,59 @@ export default class TreeView extends BaseComponent {
     }
 
     onMutate() {
-        this.items = this.shadowRoot.querySelector("slot").assignedElements()
+        this.items
+        this.checkCheckbox()
     }
 
-    addItem(name) {
-        const child = new TreeItem();
-        child.setAttribute("description", name)
-        child.setAttribute("checked", "")
-        
-        this.appendChild(child)
-    }
+    getObject(state="") {
+        const slot = this.shadowRoot.querySelector("slot")
+        const states = ["checked", "unchecked", "indeterminated"]
 
-    static fromObject(name, obj) {
-         const rootNode = new TreeView();
-         rootNode.setAttribute("description", name)
-         rootNode.setAttribute("checked", "")
-
-         for (let item in obj) {
-            if (typeof obj[item] == "object" && obj[item]) {
-                rootNode.appendChild(TreeView.fromObject(item, obj[item]))
-                continue;
+        const data = slot.assignedElements().map((item) => {
+            if (item.constructor.name == "TreeView") {
+                return [item.description, item.getObject(state)]
             }
-            rootNode.addItem(item)
+            const checked = item.checked ? "Checked" : "Unchecked"
+            if (state == "" || (state in states && checked.toLowerCase() == state))
+                return [item.description, checked]
+            
+        })
+        return Object.fromEntries(data);
+    }
+
+    static fromObject(obj) {
+        const t = new TreeView()
+        t.setAttribute("description", obj.description)
+        t.setAttribute("checked", obj.checked)
+        t.setAttribute("id", obj.id)
+        obj.items.forEach(item => {
+            if (item.items) {
+                const child = TreeView.fromObject(item)
+                t.appendChild(child)
+            } else {
+                const child = new TreeItem()
+                child.setAttribute("description", item.description)
+                child.setAttribute("checked", item.checked)
+                child.setAttribute("id", item.id)
+                t.appendChild(child)
+            }
+        })
+
+        return t
+    }
+    findItem(id) {
+        const item = this.items.find(item => item.id == id)
+        if (item) {
+            return item
         }
-        return rootNode
-        
+        for (let child of this.items) {
+            if (child.constructor.name == "TreeView") {
+                const found = child.findItem(id)
+                if (found) {
+                    return found
+                }
+            }
+        }
     }
 }
 customElements.define("tree-view", TreeView)
