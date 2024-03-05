@@ -60,6 +60,8 @@ export default class BaseComponent extends HTMLElement {
         if (this.props.styles?.removeDefault) {
             this.styles = () => ""
         }
+        this.render(true)
+        
         if (this.props.events) {
             Object.keys(this.props.events).forEach(event => {
                 const callback = this.props.events[event].callback
@@ -67,10 +69,6 @@ export default class BaseComponent extends HTMLElement {
                 this.addListener(event, callback, selector)
             })
         }
-
-
-
-        this.render(true)
     }
     render(firstRender = false) {
         this.beforeRender()
@@ -188,5 +186,13 @@ export default class BaseComponent extends HTMLElement {
 
     onMutate() {
         return
+    }
+
+    filterAttributesByPrefix(prefix) {
+        return Object.fromEntries(
+            this.getAttributeNames()
+            .filter((element) => element.includes(prefix))
+            .map((name) => [name.slice(prefix.length), this.getAttribute(name)])
+        )
     }
 }

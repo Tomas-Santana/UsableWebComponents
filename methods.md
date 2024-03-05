@@ -1,0 +1,5 @@
+- Get object DONE
+- Get items with specific status DONE
+- Add styles DONE
+- Add event listeners DONE
+- Add events/styles in the tag

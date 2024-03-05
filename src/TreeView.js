@@ -11,14 +11,16 @@ export default class TreeView extends BaseComponent {
 
             </span>
         </button>
-        <input 
-        type="checkbox" 
-        id="selectAll" 
-        name="selectAll" 
-        class="v-input__tv vi-input__tv"
-        ${this.checked ? "checked" : ""}
-        >
-        <label for="selectAll" class="v-label__tv vi-label__tv">${this.description}</label>
+        <div id="main-element">
+            <input 
+                type="checkbox" 
+                id="selectAll" 
+                name="selectAll" 
+                class="v-input__tv vi-input__tv"
+                ${this.checked ? "checked" : ""}
+            >
+            <label for="selectAll" class="v-label__tv vi-label__tv">${this.description}</label>
+        </div>
         <div class="container">
             <ul class="v-ul__tv">
                 <slot></slot>
@@ -96,6 +98,9 @@ export default class TreeView extends BaseComponent {
         }
     }
     onRender() {
+        this.mainElement = this.shadowRoot.getElementById("main-element");
+
+        this.filterAttributesByPrefix().forEach()
 
         this.checkbox = this.shadowRoot.getElementById("selectAll")
 
