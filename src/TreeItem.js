@@ -3,14 +3,15 @@ import BaseComponent from "./BaseComponent.js";
 export default class TreeItem extends BaseComponent {
     template() {
         return /*html*/`
-            <li>
+            <li class="i-li__tv">
                 <input 
                     type="checkbox" 
                     id="tree-item" 
-                    name="checkbox" 
+                    name="checkbox"
+                    class="i-input__tv vi-input__tv" 
                     ${this.checked ? "checked" : ""}
                 />
-                <label for="checkbox">${this.description}</label>
+                <label for="checkbox" class="i-label__tv vi-label__tv">${this.description}</label>
             </li>
         `
     }
@@ -19,10 +20,10 @@ export default class TreeItem extends BaseComponent {
             description: {
                 reactive: true
             },
-            checked: {
+            "checked": {
                 reactive: false
             },
-            id: {reactive: false}
+            "tree-id": {reactive: false}
         }
     }
     styles() {
@@ -43,9 +44,18 @@ export default class TreeItem extends BaseComponent {
             this.checked = this.checkbox.checked ? "true" : ""
             this.parentNode.checkCheckbox()
         })
-    }
 
-    
+    }
+    setOwnCheckbox(state) {
+        if (this.checkbox) {
+            this.checkbox.checked = state
+        }
+    }
+    connectedCallback() {
+        super.connectedCallback()
+
+        this.customStyles
+    }
 }
 
 customElements.define("tree-item", TreeItem)

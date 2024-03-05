@@ -13,15 +13,15 @@
     <div class="content">
         <div class="from-html">
             <h2>Tree View en HTML</h2>
-            <tree-view description="Grandad" checked="" id="1">
-                <tree-item description="Dad Item" checked="" id="2"></tree-item>
-                <tree-item description="Dad Item 2" checked="" id="3"></tree-item>
-                <tree-view description="Dad Tree View" id="4">
-                    <tree-item description="Child Item" id="5"></tree-item> 
-                    <tree-item description="Child Item 2" id="6"></tree-item>
-                    <tree-view description="Child Tree View" id="7">
-                        <tree-item description="Grandchild Item" id="8"></tree-item> 
-                        <tree-item description="Grandchild Item" id="9"></tree-item>
+            <tree-view description="Grandad" checked="" tree-id="1">
+                <tree-item description="Dad Item" checked="" tree-id="2"></tree-item>
+                <tree-item description="Dad Item 2" checked="" tree-id="3"></tree-item>
+                <tree-view description="Dad Tree View" tree-id="4">
+                    <tree-item description="Child Item" tree-id="5"></tree-item> 
+                    <tree-item description="Child Item 2" tree-id="6"></tree-item>
+                    <tree-view description="Child Tree View" tree-id="7">
+                        <tree-item description="Grandchild Item" tree-id="8"></tree-item> 
+                        <tree-item description="Grandchild Item" tree-id="9"></tree-item>
                     </tree-view>
                     
                 </tree-view>
@@ -41,26 +41,42 @@
     const treeView = TreeView.fromObject({
         description: "Grandad",
         checked: "",
-        id: "1",
+        id: "10",
+        props: {
+            styles: {
+                content: `
+                    .vi-label__tv {
+                        background: red;
+                    }`,
+                recursive: true,
+            },
+            events: {
+                click: {
+                    callback: () => {
+                        console.log("hello")
+                    },
+                }
+            }
+        },
         items: [
             {
-                description: "Dad Item",
+                description: "Uncle",
                 checked: "",
-                id: "2"
+                id: "11"
             },
             {
-                description: "Dad Item 2",
+                description: "Dad",
                 checked: "",
-                id: "3",
+                id: "12",
                 items: [
                     {
                         description: "Child Item",
-                        id: "5",
-                        checked: "true"
+                        id: "13",
+                        checked: ""
                     },
                     {
                         description: "Child Item 2",
-                        id: "6",
+                        id: "14",
                         checked: "true"
                     }, 
                 ]
@@ -73,12 +89,17 @@
     fromJs.appendChild(treeView)
 
 
-    const t = document.querySelector('tree-view')
+    console.log(treeView.findItemsByDescription("Grandad", true))
 
     setTimeout(() => {
-        console.log("Tried", t)
-        t.setCheckbox("4") 
-    }, 4000);
+        console.log(treeView.getObject())
+        
+        console.log(treeView.getFlatItems("indeterminate"))
+    }, 1000)
+
+   
+
+
 
 
     </script>

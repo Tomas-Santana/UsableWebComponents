@@ -5,7 +5,7 @@ export default class TreeView extends BaseComponent {
 
     template() {
         return /*html*/`
-        <button> 
+        <button class="v-expand__tv"> 
             <span class="selector">
                 &#171;
 
@@ -15,14 +15,15 @@ export default class TreeView extends BaseComponent {
         type="checkbox" 
         id="selectAll" 
         name="selectAll" 
+        class="v-input__tv vi-input__tv"
         ${this.checked ? "checked" : ""}
         >
-        <label for="selectAll">${this.description}</label>
+        <label for="selectAll" class="v-label__tv vi-label__tv">${this.description}</label>
         <div class="container">
-            <ul>
+            <ul class="v-ul__tv">
                 <slot></slot>
             </ul>
-            <div class="line"></div>
+            <div class="line tv-line__tv"></div>
         </div>
         `
     }
@@ -86,7 +87,7 @@ export default class TreeView extends BaseComponent {
         return {
             description: "Tree View",
             checked: {},
-            id: {}
+            "tree-id": {}
         }
     }
     data() {
@@ -115,7 +116,6 @@ export default class TreeView extends BaseComponent {
             line.classList.toggle("collapsed")
         })
 
-        // console.log("rendered", this.description)
 
     }
     get items() {
@@ -145,14 +145,22 @@ export default class TreeView extends BaseComponent {
             this.parentNode.checkCheckbox()   
         }
     }
-
+    setOwnCheckbox(state) {
+        if (state) {
+            this.checked = true
+            this.indeterminate = false
+        } else {
+            this.checked = false
+            this.indeterminate = false
+        }
+    }
     setCheckbox(id, state=true) {
-        const item = this.findItem(id)
-        console.log(item)
+        const item = this.findItemById(id)
 
         if (state) {
             item.checkbox.checked = true
             item.checkbox.indeterminate = false
+
         } else {
             item.checkbox.checked = false
             item.checkbox.indeterminate = false
@@ -183,44 +191,94 @@ export default class TreeView extends BaseComponent {
         this.checkCheckbox()
     }
 
-    getObject(state="") {
-        const slot = this.shadowRoot.querySelector("slot")
-        const states = ["checked", "unchecked", "indeterminated"]
-
-        const data = slot.assignedElements().map((item) => {
+    getObject() {
+        const obj = {
+            description: this.description,
+            checked: this.checkbox.checked,
+            indeterminate: this.checkbox.indeterminate,
+            id: this["tree-id"],
+            items: []
+        }
+        this.items.forEach(item => {
             if (item.constructor.name == "TreeView") {
-                return [item.description, item.getObject(state)]
+                obj.items.push(item.getObject())
+            } else {
+                obj.items.push({
+                    description: item.description,
+                    checked: item.checkbox.checked,
+                    id: item["tree-id"]
+                })
             }
-            const checked = item.checked ? "Checked" : "Unchecked"
-            if (state == "" || (state in states && checked.toLowerCase() == state))
-                return [item.description, checked]
-            
         })
-        return Object.fromEntries(data);
+        return obj
+    }
+
+    getFlatItems(state="", pushMyself=true) {
+        let items = []
+        if (pushMyself) {
+            items.push({
+                description: this.description,
+                checked: this.checkbox.checked,
+                id: this["tree-id"],
+                indeterminate: this.checkbox.indeterminate
+            })
+        }
+        this.items.forEach(item => {
+            if (item.constructor.name == "TreeView") {
+                items.push({
+                    description: item.description,
+                    checked: item.checkbox.checked,
+                    id: item["tree-id"],
+                    indeterminate: item.checkbox.indeterminate
+                })
+                items.push(...item.getFlatItems(state, false))
+            } else {
+                items.push({
+                    description: item.description,
+                    checked: item.checkbox.checked,
+                    id: item["tree-id"],
+                    indeterminate: item.checkbox.indeterminate
+                })
+            }
+        })
+        if (state === "checked") {
+            items = items.filter(item => item.checked)
+        }
+        else if (state === "unchecked") {
+            items = items.filter(item => !item.checked)
+        }
+        else if (state === "indeterminate") {
+            items = items.filter(item => item.indeterminate)
+        }
+
+        return items
     }
 
     static fromObject(obj) {
-        const t = new TreeView()
+        const t = new TreeView(obj.props ?? {})
         t.setAttribute("description", obj.description)
         t.setAttribute("checked", obj.checked)
-        t.setAttribute("id", obj.id)
+        t.setAttribute("tree-id", obj.id)
+        
         obj.items.forEach(item => {
             if (item.items) {
                 const child = TreeView.fromObject(item)
                 t.appendChild(child)
             } else {
-                const child = new TreeItem()
+                const child = new TreeItem(item.props ?? {})
                 child.setAttribute("description", item.description)
+                child.setAttribute("tree-id", item.id)
                 child.setAttribute("checked", item.checked)
-                child.setAttribute("id", item.id)
                 t.appendChild(child)
+                child.setOwnCheckbox(item.checked)
             }
         })
 
         return t
     }
-    findItem(id) {
-        const item = this.items.find(item => item.id == id)
+    findItemById(id) {
+        if (this.id == id) return this
+        const item = this.items.find((item) => item['tree-id'] == id)
         if (item) {
             return item
         }
@@ -232,6 +290,20 @@ export default class TreeView extends BaseComponent {
                 }
             }
         }
+    }
+    findItemsByDescription(description, checkMyself=false) {
+        const items = this.items.filter((item) => item.description === description)
+        
+        if (checkMyself && this.description === description) items.unshift(this)
+        
+        for (let child of this.items) {
+            if (child.constructor.name == "TreeView") {
+                const moreItems = child.findItemsByDescription(description)
+                if (moreItems) items.push(...moreItems)
+            }
+        }
+
+        return items;
     }
 }
 customElements.define("tree-view", TreeView)
