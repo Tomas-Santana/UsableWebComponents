@@ -15,6 +15,7 @@ export default class BaseComponent extends HTMLElement {
 
         this.mutationObserver.observe(this, { childList:true })
         this.props = props
+        this.mainElement = this.shadowRoot
         return this;
     }
 
@@ -61,18 +62,28 @@ export default class BaseComponent extends HTMLElement {
         if (this.props.styles?.removeDefault) {
             this.styles = () => ""
         }
+
         this.render(true)
-        
+
+        const customStyles = this.getAttribute("sx")
+        if (customStyles) {
+            this.addStyles(customStyles, false)
+        } 
+              
         if (this.props.events) {
             Object.keys(this.props.events).forEach(event => {
                 const callback = this.props.events[event].callback
                 const selector = this.props.events[event].selector ?? ""
-                this.addListener(event, callback, selector)
+                this.eventListeners[event] = {
+                    callback,
+                    selector
+                }
             })
         }
     }
     render(firstRender = false) {
         this.beforeRender()
+        const customStyles = this.getAttribute("sx")
         this.shadowRoot.innerHTML = `
             <style>
                 ${this.styles()}
@@ -84,8 +95,10 @@ export default class BaseComponent extends HTMLElement {
             this.onFirstRender()
         }
         this.onRender()
-    }
 
+        this.#addHTMLDeclaredEvents()
+        this.addListeners()
+    }
     setState(newState, reRender=true) {
         this.state = {
             ...this.state,
@@ -96,6 +109,15 @@ export default class BaseComponent extends HTMLElement {
             this.render()
         }
     }
+    #addHTMLDeclaredEvents() {
+        const events = this.filterAttributesByPrefix("on");
+        for (let event in events) { 
+            const handler = this.getAttribute(`on${event}`)
+            this.removeAttribute(`on${event}`)
+            this.mainElement = this.mainElement || this.shadowRoot
+            this.mainElement.addEventListener(event, window[handler])
+        }
+    }
 
     styles() {
         return ``
@@ -103,8 +125,13 @@ export default class BaseComponent extends HTMLElement {
 
     customStyles = ``
 
+    eventListeners = {}
+
     addStyles(styles, recursive=true) {
         // these styles will be added on the next render
+
+        if (this.customStyles.includes(styles)) return
+        
         this.customStyles += "\n" + styles
 
         // in the meantime, we add a style element to the shadow root
@@ -115,17 +142,27 @@ export default class BaseComponent extends HTMLElement {
 
         if (!recursive) return
 
-        const children = [...this.children] 
+
+        const slot = this.shadowRoot.querySelector("slot")
+        if (!slot) return
+        const children = [...slot.assignedElements()] 
+        console.log(children)
+
         children.forEach((child) => {
-            console.log(child, child.addStyles)
-            child.addStyles(styles)
+            if (child.addStyles)
+                child.addStyles(styles, recursive)
         })
     }
 
-    addListener(event, callback, selector="") {
-        const element = selector ? this.shadowRoot.querySelector(selector) : this
-
-        element.addEventListener(event, callback)
+    addListeners() {
+        for (let event in this.eventListeners) {
+            const {callback, selector} = this.eventListeners[event]
+            if (selector) {
+                this.shadowRoot.querySelector(selector).addEventListener(event, callback)
+            } else {
+                this.shadowRoot.addEventListener(event, callback)
+            }
+        }
     }
 
     /**

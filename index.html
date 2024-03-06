@@ -21,8 +21,11 @@
             <h2>Tree View en HTML</h2>
             <tree-view description="Grandad" checked="" tree-id="1"
                 onclick="bclick"
-                style="background-color: red;"
-                style-recursive="text-decoration: underline; "
+                sx="
+                    .vi-label__tv {
+                        background: blue;
+                    }
+                "
             >
                 <tree-item description="Dad Item" checked="" tree-id="2"></tree-item>
                 <tree-item description="Dad Item 2" checked="" tree-id="3"></tree-item>
@@ -48,7 +51,7 @@
     import TreeItem from './src/TreeItem.js'
     import TreeView from './src/TreeView.js'
 
-
+    
 
     const treeView = TreeView.fromObject({
         description: "Grandad",
@@ -63,10 +66,11 @@
                 recursive: false,
             },
             events: {
-                click: {
+                change: {
                     callback: () => {
-                        console.log("hello")
+                        alert("clicked")
                     },
+                    selector: "#selectAll"
                 }
             }
         },
@@ -99,19 +103,6 @@
 
     const fromJs = document.querySelector('.from-js')
     fromJs.appendChild(treeView)
-
-
-    // console.log(treeView.findItemsByDescription("Grandad", true))
-
-    // setTimeout(() => {
-    //     console.log(treeView.getObject())
-        
-    //     console.log(treeView.getFlatItems("indeterminate"))
-    // }, 1000)
-
-   
-
-
 
 
     </script>

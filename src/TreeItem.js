@@ -39,6 +39,7 @@ export default class TreeItem extends BaseComponent {
 
     onRender() {
         this.checkbox = this.shadowRoot.querySelector("input");
+        this.mainElement = this.shadowRoot.querySelector("li")
 
         this.checkbox.addEventListener("change", () => {
             this.checked = this.checkbox.checked ? "true" : ""

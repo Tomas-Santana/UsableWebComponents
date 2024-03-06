@@ -2,7 +2,6 @@ import BaseComponent from "./BaseComponent.js";
 import TreeItem from './TreeItem.js'
 
 export default class TreeView extends BaseComponent {
-
     template() {
         return /*html*/`
         <div id="main-element">
@@ -103,21 +102,11 @@ export default class TreeView extends BaseComponent {
         }
     }
     onRender() {
+        console.log(this.description, "rendered")
         this.checkbox = this.shadowRoot.getElementById("selectAll")
+        this.mainElement = this.shadowRoot.getElementById("main-element")
 
-        const events = this.filterAttributesByPrefix("on");
-        for (let event in events) { 
-            const handler = this.getAttribute(`on${event}`)
-            this[`on${event}`] = null
-            this.checkbox.addEventListener(event, window[handler])
-        }
-
-        const styles = this.getAttribute('');
-        this.addStyles(styles, false)
-        this.removeAttribute('style')
-        const recursiveStyle = this.getAttribute('style-recursive')
-        // this.addStyles(recursiveStyle, true)
-
+        
 
         this.checkbox.addEventListener("change", () => {
             this.checked = this.checkbox.checked ? "true" : ""
@@ -135,6 +124,8 @@ export default class TreeView extends BaseComponent {
             button.classList.toggle("buttonCollapsed")
             line.classList.toggle("collapsed")
         })
+
+
 
 
     }
