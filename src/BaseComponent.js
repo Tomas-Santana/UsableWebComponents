@@ -138,19 +138,12 @@ export default class BaseComponent extends HTMLElement {
         const style = document.createElement("style")
         style.innerHTML = styles
         this.shadowRoot.appendChild(style)
-
-
         if (!recursive) return
-
-
-        const slot = this.shadowRoot.querySelector("slot")
-        if (!slot) return
-        const children = [...slot.assignedElements()] 
-        console.log(children)
+        
+        const children = [...this.children] 
 
         children.forEach((child) => {
-            if (child.addStyles)
-                child.addStyles(styles, recursive)
+            child.addStyles(styles, recursive)
         })
     }
 
