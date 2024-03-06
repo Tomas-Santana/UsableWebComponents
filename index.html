@@ -10,10 +10,20 @@
 </head>
 <body>
 
+    <script>
+        function bclick(event) {
+            console.log(event.target)
+        }
+    </script>
+
     <div class="content">
         <div class="from-html">
             <h2>Tree View en HTML</h2>
-            <tree-view description="Grandad" checked="" tree-id="1">
+            <tree-view description="Grandad" checked="" tree-id="1"
+                onclick="bclick"
+                style="background-color: red;"
+                style-recursive="text-decoration: underline; "
+            >
                 <tree-item description="Dad Item" checked="" tree-id="2"></tree-item>
                 <tree-item description="Dad Item 2" checked="" tree-id="3"></tree-item>
                 <tree-view description="Dad Tree View" tree-id="4">
@@ -89,13 +99,13 @@
     fromJs.appendChild(treeView)
 
 
-    console.log(treeView.findItemsByDescription("Grandad", true))
+    // console.log(treeView.findItemsByDescription("Grandad", true))
 
-    setTimeout(() => {
-        console.log(treeView.getObject())
+    // setTimeout(() => {
+    //     console.log(treeView.getObject())
         
-        console.log(treeView.getFlatItems("indeterminate"))
-    }, 1000)
+    //     console.log(treeView.getFlatItems("indeterminate"))
+    // }, 1000)
 
    
 

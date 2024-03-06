@@ -5,20 +5,22 @@ export default class TreeView extends BaseComponent {
 
     template() {
         return /*html*/`
-        <button class="v-expand__tv"> 
-            <span class="selector">
-                &#171;
+        <div id="main-element">
+            <button class="v-expand__tv"> 
+                <span class="selector">
+                    &#171;
 
-            </span>
-        </button>
-        <input 
-        type="checkbox" 
-        id="selectAll" 
-        name="selectAll" 
-        class="v-input__tv vi-input__tv"
-        ${this.checked ? "checked" : ""}
-        >
-        <label for="selectAll" class="v-label__tv vi-label__tv">${this.description}</label>
+                </span>
+            </button>
+            <input 
+            type="checkbox" 
+            id="selectAll" 
+            name="selectAll" 
+            class="v-input__tv vi-input__tv"
+            ${this.checked ? "checked" : ""}
+            >
+            <label for="selectAll" class="v-label__tv vi-label__tv">${this.description}</label>
+        </div>
         <div class="container">
             <ul class="v-ul__tv">
                 <slot></slot>
@@ -37,9 +39,11 @@ export default class TreeView extends BaseComponent {
             label {
                 font-weight: bold;
                 margin: 5px 0px;
+                user-select: none;
+                transition: color ease-in-out 150ms
             }
             label:hover {
-                color: #333;
+                color: #2323d2;
             }
             @keyframes slideaway {
                 from { display: block; }
@@ -52,6 +56,9 @@ export default class TreeView extends BaseComponent {
             .collapsed {
                 animation: slideaway 200ms;
                 display: none;
+            }
+            .main-element {
+                user-select: none
             }
             button {
                 all: unset;
@@ -96,8 +103,21 @@ export default class TreeView extends BaseComponent {
         }
     }
     onRender() {
-
         this.checkbox = this.shadowRoot.getElementById("selectAll")
+
+        const events = this.filterAttributesByPrefix("on");
+        for (let event in events) { 
+            const handler = this.getAttribute(`on${event}`)
+            this[`on${event}`] = null
+            this.checkbox.addEventListener(event, window[handler])
+        }
+
+        const styles = this.getAttribute('');
+        this.addStyles(styles, false)
+        this.removeAttribute('style')
+        const recursiveStyle = this.getAttribute('style-recursive')
+        // this.addStyles(recursiveStyle, true)
+
 
         this.checkbox.addEventListener("change", () => {
             this.checked = this.checkbox.checked ? "true" : ""
@@ -154,6 +174,7 @@ export default class TreeView extends BaseComponent {
             this.indeterminate = false
         }
     }
+
     setCheckbox(id, state=true) {
         const item = this.findItemById(id)
 
@@ -234,7 +255,7 @@ export default class TreeView extends BaseComponent {
                 items.push(...item.getFlatItems(state, false))
             } else {
                 items.push({
-                    description: item.description,
+                    descr0iption: item.description,
                     checked: item.checkbox.checked,
                     id: item["tree-id"],
                     indeterminate: item.checkbox.indeterminate

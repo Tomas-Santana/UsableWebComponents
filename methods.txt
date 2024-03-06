@@ -1,5 +1,0 @@
-- Get object DONE
-- Get items with specific status DONE
-- add styles
-- add event listeners 
-- add events on the tag

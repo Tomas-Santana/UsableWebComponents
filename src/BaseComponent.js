@@ -15,6 +15,7 @@ export default class BaseComponent extends HTMLElement {
 
         this.mutationObserver.observe(this, { childList:true })
         this.props = props
+        return this;
     }
 
     addTo(node) {
@@ -116,9 +117,9 @@ export default class BaseComponent extends HTMLElement {
 
         if (!recursive) return
 
-        const children = this.children ? [...this.children] : []
-
-        children.forEach(child => {
+        const children = [...this.children] 
+        children.forEach((child) => {
+            console.log(child, child.addStyles)
             child.addStyles(styles)
         })
     }
@@ -182,11 +183,15 @@ export default class BaseComponent extends HTMLElement {
         return
     }
 
-    addToBody() {
-        document.body.appendChild(this)
-    }
-
     onMutate() {
         return
+    }
+
+    filterAttributesByPrefix(prefix) {
+        return Object.fromEntries(
+            this.getAttributeNames()
+            .filter((element) => element.startsWith(prefix))
+            .map((name) => [name.slice(prefix.length), this.getAttribute(name)])
+        )
     }
 }
