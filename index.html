@@ -68,7 +68,7 @@
             events: {
                 change: {
                     callback: () => {
-                        alert("clicked")
+                        alert("Grandad Checkbox Changed")
                     },
                     selector: "#selectAll"
                 }
@@ -88,7 +88,7 @@
                     {
                         description: "Child Item",
                         id: "13",
-                        checked: ""
+                        checked: "true"
                     },
                     {
                         description: "Child Item 2",
@@ -103,6 +103,35 @@
 
     const fromJs = document.querySelector('.from-js')
     fromJs.appendChild(treeView)
+
+
+    setTimeout(() => {
+        const dad = treeView.findItemById("12")
+        console.log(dad)
+
+        // dad.setCheckbox("14", false)
+
+        const newItem = new TreeItem({
+            description: "Hola",
+            "tree-id": "17"
+        })
+
+        console.log(newItem)
+
+        dad.addChild(newItem)
+
+
+    }, 2000)
+
+    setTimeout(() => {
+        treeView.setCheckbox("17", true)
+
+        const dad = treeView.findItemById("12")
+
+        dad.setAttribute("description", "Papa")
+
+
+    }, 4000)
 
 
     </script>

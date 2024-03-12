@@ -1,6 +1,15 @@
 import BaseComponent from "./BaseComponent.js";
 
 export default class TreeItem extends BaseComponent {
+    constructor(props = {}) {
+        super(props)
+
+        this.setAttribute("description", props.description ?? "Default")
+        this.setAttribute("tree-id", props["tree-id"] ?? (100 + Math.floor(Math.random() * 1000)) )
+        
+    
+    }
+
     template() {
         return /*html*/`
             <li class="i-li__tv">
@@ -41,15 +50,32 @@ export default class TreeItem extends BaseComponent {
         this.checkbox = this.shadowRoot.querySelector("input");
         this.mainElement = this.shadowRoot.querySelector("li")
 
+
+        if (this.checked) {
+            this.checkbox.checked = true
+        }
+        else {
+            this.checkbox.checked = false
+        }
+
         this.checkbox.addEventListener("change", () => {
             this.checked = this.checkbox.checked ? "true" : ""
             this.parentNode.checkCheckbox()
         })
 
+        const sibling = this.parentElement.firstChild
+
+        if (sibling.shadowRoot){
+            const siblingStyleSheetContent = sibling.shadowRoot.querySelector("style").innerHTML
+            this.addStyles(siblingStyleSheetContent)
+        }
+
+
     }
     setOwnCheckbox(state) {
         if (this.checkbox) {
             this.checkbox.checked = state
+            this.checked = state ? "true": ""
         }
     }
     connectedCallback() {

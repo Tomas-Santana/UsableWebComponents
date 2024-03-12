@@ -2,6 +2,7 @@ import BaseComponent from "./BaseComponent.js";
 import TreeItem from './TreeItem.js'
 
 export default class TreeView extends BaseComponent {
+    static observedAttributes = ["description"]
     template() {
         return /*html*/`
         <div id="main-element">
@@ -91,9 +92,9 @@ export default class TreeView extends BaseComponent {
     }
     properties() {
         return {
-            description: "Tree View",
-            checked: {},
-            "tree-id": {}
+            description: {reactive: false},
+            checked: {reactive: false},
+            "tree-id": {reactive: false}
         }
     }
     data() {
@@ -157,13 +158,7 @@ export default class TreeView extends BaseComponent {
         }
     }
     setOwnCheckbox(state) {
-        if (state) {
-            this.checked = true
-            this.indeterminate = false
-        } else {
-            this.checked = false
-            this.indeterminate = false
-        }
+        this.setCheckbox(this["tree-id"], state)
     }
 
     setCheckbox(id, state=true) {
@@ -172,17 +167,22 @@ export default class TreeView extends BaseComponent {
         if (state) {
             item.checkbox.checked = true
             item.checkbox.indeterminate = false
+            item.checked = true
+            if (item.indeterminate) item.indeterminate = false
 
         } else {
             item.checkbox.checked = false
             item.checkbox.indeterminate = false
+            item.checked = false
+            if (item.indeterminate) item.indeterminate = false
         }
 
         if (item.changeAll) {
             item.changeAll()
         }
 
-        this.checkCheckbox()
+        if (item.parentNode.checkCheckbox) 
+            item.parentNode.checkCheckbox()
     
     }
 
@@ -289,14 +289,14 @@ export default class TreeView extends BaseComponent {
         return t
     }
     findItemById(id) {
-        if (this.id == id) return this
+        if (this["tree-id"] == id) return this
         const item = this.items.find((item) => item['tree-id'] == id)
         if (item) {
             return item
         }
         for (let child of this.items) {
             if (child.constructor.name == "TreeView") {
-                const found = child.findItem(id)
+                const found = child.findItemById(id)
                 if (found) {
                     return found
                 }
@@ -317,5 +317,18 @@ export default class TreeView extends BaseComponent {
 
         return items;
     }
+    addChild(child) {
+        this.appendChild(child)
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (name === "description") {
+            const label = this.shadowRoot.querySelector("label")
+            if (label) label.textContent = newValue
+        }
+
+        console.log(`${name} changed from ${oldValue} to ${newValue}`)
+    }
+
 }
 customElements.define("tree-view", TreeView)

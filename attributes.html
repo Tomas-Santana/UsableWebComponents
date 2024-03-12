@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="src/AttrObserverTest.js"></script>
+</head>
+<body>
+    <attr-component
+        name="John"
+        sx="
+        h1 {
+            color: red;
+        }
+        "
+    ></attr-component>
+
+    <script>
+
+        const attrComponent = document.querySelector('attr-component');
+
+        attrComponent.setAttribute('name', 'Doe');
+    </script>
+    
+</body>
+</html>
